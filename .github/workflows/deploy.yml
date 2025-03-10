@@ -3,24 +3,29 @@ name: Generate a build and push to another branch
 on:
   push:
     branches:
-      - main # The branch name your are commit the new changes
+      - main  # Triggers this workflow when changes are pushed to the 'main' branch
 
 jobs:
   build:
     runs-on: ubuntu-latest
     name: Build and Push
-    permissions: # <-- This line sets the right permissions
-      contents: write 
-    steps:
-      - name: git-checkout
-        uses: actions/checkout@v3
-        
-      - name: Push
-        uses: s0/git-publish-subdir-action@develop
+    permissions:
+      contents: write  # Required permission to push changes to the repository
 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Ensures the full commit history is available
+
+      - name: Debug - List Files
+        run: ls -la  # Prints the directory structure for debugging
+
+      - name: Push to Subdirectory Branch
+        uses: s0/git-publish-subdir-action@develop
         env:
           REPO: self
-          BRANCH: main # The branch name where you want to push the assets
-          FOLDER: Test-Wordpress # The directory where your assets are generated
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
-          MESSAGE: "Build: ({sha}) {msg}" # The commit message
+          BRANCH: build-output  # Push the build output to a separate branch
+          FOLDER: Test-Wordpress  # Ensure this matches the actual subdirectory
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MESSAGE: "Build: ({sha}) {msg}"  # Commit message format
