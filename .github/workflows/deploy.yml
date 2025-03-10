@@ -1,40 +1,26 @@
-name: Deploy to Hostinger
+name: Generate a build and push to another branch
 
 on:
   push:
     branches:
-      - main  # Change to your deployment branch if different
+      - main # The branch name your are commit the new changes
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
+    name: Build and Push
+    permissions: # <-- This line sets the right permissions
+      contents: write 
     steps:
-      - name: Set up job
-        run: echo "Starting deployment process"
-
-      - name: Checkout code
+      - name: git-checkout
         uses: actions/checkout@v3
+        
+      - name: Push
+        uses: s0/git-publish-subdir-action@develop
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 157.173.216.164 >> ~/.ssh/known_hosts
-        shell: bash
-
-      - name: Deploy to Hostinger via Rsync
-        run: rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ username@157.173.216.164:/home/username/public_html
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Set Correct Permissions
-        run: ssh username@157.173.216.164 "chmod -R 755 /home/username/public_html"
-
-      - name: Clear Cache (Optional)
-        run: ssh username@157.173.216.164 "rm -rf /home/username/public_html/cache"
-
-      - name: Complete job
-        run: echo "Deployment successful!"
+          REPO: self
+          BRANCH: main # The branch name where you want to push the assets
+          FOLDER: git-site-new # The directory where your assets are generated
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
+          MESSAGE: "Build: ({sha}) {msg}" # The commit message
