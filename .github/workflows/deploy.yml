@@ -3,31 +3,39 @@ name: Deploy to Hostinger
 on:
   push:
     branches:
-      - main  # Change if using a different branch
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set up job
+        run: echo "Starting Deployment"
+
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 157.173.216.164 >> ~/.ssh/known_hosts
+        shell: bash
 
       - name: Deploy to Hostinger via Rsync
         run: |
-          rsync -avz --delete ./ u171917511@157.173.216.164:/home/u171917511/public_html/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ u171917511@157.173.216.164:/home/u171917511/public_html/
 
       - name: Set Correct Permissions
         run: |
-          ssh u171917511@157.173.216.164 "chmod -R 755 /home/u171917511/public_html/"
+          ssh -o StrictHostKeyChecking=no u171917511@157.173.216.164 "chmod -R 755 /home/u171917511/public_html/"
 
       - name: Clear Cache (Optional)
         run: |
-          ssh u171917511@157.173.216.164 "rm -rf /home/u171917511/public_html/wp-content/cache/*"
+          ssh -o StrictHostKeyChecking=no u171917511@157.173.216.164 "wp cache flush --path=/home/u171917511/public_html/"
+
+      - name: Complete job
+        run: echo "Deployment Completed Successfully!"
