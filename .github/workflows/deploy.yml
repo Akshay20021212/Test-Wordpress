@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up job
-        run: echo "Starting Deployment"
-
       - name: Checkout code
         uses: actions/checkout@v3
 
