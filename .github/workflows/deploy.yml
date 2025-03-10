@@ -25,7 +25,7 @@ jobs:
         uses: s0/git-publish-subdir-action@develop
         env:
           REPO: self
-          BRANCH: build-output  # Push the build output to a separate branch
+          BRANCH: main  # Push the build output to a separate branch
           FOLDER: Test-Wordpress  # Ensure this matches the actual subdirectory
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MESSAGE: "Build: ({sha}) {msg}"  # Commit message format
