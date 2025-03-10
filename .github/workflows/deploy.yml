@@ -35,4 +35,4 @@ jobs:
           ssh -o StrictHostKeyChecking=no u171917511@157.173.216.164 "wp cache flush --path=/home/u171917511/public_html/"
 
       - name: Complete job
-        run: echo "Deployment Completed Successfully!"
+        run: echo "Deployment Completed Successfully!" 
